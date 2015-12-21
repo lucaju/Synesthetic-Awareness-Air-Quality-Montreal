@@ -531,6 +531,7 @@ function triggerBack() {
 		signNoise.pause();
 		signNoiseInterval.stop();
 		$("#sign-wave").empty();
+		waveSignature.stop();
 	}
 
 	$(activeView).hide();
@@ -540,6 +541,7 @@ function triggerBack() {
 
 //--------------------  SEE VIEW ----------------
 
+//
 function builtSeeView() {
 	$(".internal-title").offset({top:$("#app-container").height() - 120});
 	$(".internal-index").offset({top:$("#app-container").height() - 100});
@@ -550,38 +552,7 @@ function builtSeeView() {
 	$("#video").height($("#app-container").height());
 }
 
-
-// Put event listeners into place
-// window.addEventListener("DOMContentLoaded", function() {
-// 	// Grab elements, create settings, etc.
-// 	// var canvas = document.getElementById("canvas"),
-// 	// 	context = canvas.getContext("2d"),
-// 		video = document.getElementById("video"),
-// 		videoObj = { "video": true },
-// 		errBack = function	(error) {
-// 			console.log("Video capture error: ", error.code); 
-// 		};
-
-// 	// Put video listeners into place
-// 	if(navigator.getUserMedia) { // Standard
-// 		navigator.getUserMedia(videoObj, function(stream) {
-// 			video.src = stream;
-// 			video.play();
-// 		}, errBack);
-// 	} else if(navigator.webkitGetUserMedia) { // WebKit-prefixed
-// 		navigator.webkitGetUserMedia(videoObj, function(stream){
-// 			video.src = window.URL.createObjectURL(stream);
-// 			video.play();
-// 		}, errBack);
-// 	}
-// 	else if(navigator.mozGetUserMedia) { // Firefox-prefixed
-// 		navigator.mozGetUserMedia(videoObj, function(stream){
-// 			video.src = window.URL.createObjectURL(stream);
-// 			video.play();
-// 		}, errBack);
-// 	}
-// 	}, false);
-
+//
 function getCamera() {
 	// Grab elements, create settings, etc.
 	// var canvas = document.getElementById("canvas"),
@@ -613,6 +584,7 @@ function getCamera() {
 	}
 };
 
+//
 function stopCamera() {
 	video = document.getElementById("video"),
 	videoObj = { "video": true },
@@ -642,10 +614,9 @@ function stopCamera() {
 			stream.getVideoTracks()[0].stop();
 		}, errBack);
 	}
-
 }
 
-
+//
 function videoEffect() {
 
 	getCamera();
@@ -676,7 +647,6 @@ function videoEffect() {
 
 	var value = (localPollution.latestPollutants.index/50);
 	noise.amount = value;
-
 }
 
 //--------------------  LISTEN VIEW ----------------
@@ -848,15 +818,21 @@ function showWave() {
 
 var signNoise;
 var signNoiseInterval;
+var waveSignature;
+
 
 function builtSignatureView() {
 	$(".internal-title").offset({top:$("#app-container").height() - 120});
 	$(".internal-index").offset({top:$("#app-container").height() - 100});
 	$(".internal-index").text(localPollution.latestPollutants.index);
 	
-	$( document ).load( "getAirQualityData.php", function(responseText) {
+	var yesterday = moment().subtract(1, 'days').format('YYMMDD');
+
+	$( document ).load( "getAirQualityData.php?"+yesterday, function(responseText) {
 		parseSignatureData(JSON.parse(responseText));
 	});
+
+	console.log(test);
 }
 
 function parseSignatureData(data) {
@@ -914,7 +890,7 @@ function showSignWave(signatureData) {
 
 	// wave.start();
 
-	var wave = new SiriWave({
+	waveSignature = new SiriWave({
 		    container: document.getElementById('sign-wave'),
 		    width: $("#app-container").width(),
 		    height: 100,
@@ -924,7 +900,7 @@ function showSignWave(signatureData) {
 		    frequency: 3
 		});
 
-	wave.start();
+	waveSignature.start();
 
 	var hour = 0;
 
@@ -938,9 +914,10 @@ function showSignWave(signatureData) {
 			hour = 0;
 		}
 
-		wave.frequency = signatureData[hour].index * (rangeFreq/50);
-		wave.speed = signatureData[hour].index * 0.02,
-		wave.amplitude = signatureData[hour].index * 0.05;
+		// console.log(signatureData[hour])
+		waveSignature.frequency = signatureData[hour].index * (rangeFreq/50);
+		waveSignature.speed = signatureData[hour].index * 0.02,
+		waveSignature.amplitude = signatureData[hour].index * 0.05;
 	}
 }
 
