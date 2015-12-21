@@ -520,7 +520,8 @@ function triggerSignature() {
 function triggerBack() {
 
 	if (activeView == "#see-page") {
-		
+		stopCamera();
+
 	} else if (activeView == "#listen-page") {
 		stopListenSound();
 		$("#listen-wave").empty();
@@ -551,7 +552,37 @@ function builtSeeView() {
 
 
 // Put event listeners into place
-window.addEventListener("DOMContentLoaded", function() {
+// window.addEventListener("DOMContentLoaded", function() {
+// 	// Grab elements, create settings, etc.
+// 	// var canvas = document.getElementById("canvas"),
+// 	// 	context = canvas.getContext("2d"),
+// 		video = document.getElementById("video"),
+// 		videoObj = { "video": true },
+// 		errBack = function	(error) {
+// 			console.log("Video capture error: ", error.code); 
+// 		};
+
+// 	// Put video listeners into place
+// 	if(navigator.getUserMedia) { // Standard
+// 		navigator.getUserMedia(videoObj, function(stream) {
+// 			video.src = stream;
+// 			video.play();
+// 		}, errBack);
+// 	} else if(navigator.webkitGetUserMedia) { // WebKit-prefixed
+// 		navigator.webkitGetUserMedia(videoObj, function(stream){
+// 			video.src = window.URL.createObjectURL(stream);
+// 			video.play();
+// 		}, errBack);
+// 	}
+// 	else if(navigator.mozGetUserMedia) { // Firefox-prefixed
+// 		navigator.mozGetUserMedia(videoObj, function(stream){
+// 			video.src = window.URL.createObjectURL(stream);
+// 			video.play();
+// 		}, errBack);
+// 	}
+// 	}, false);
+
+function getCamera() {
 	// Grab elements, create settings, etc.
 	// var canvas = document.getElementById("canvas"),
 	// 	context = canvas.getContext("2d"),
@@ -571,6 +602,7 @@ window.addEventListener("DOMContentLoaded", function() {
 		navigator.webkitGetUserMedia(videoObj, function(stream){
 			video.src = window.URL.createObjectURL(stream);
 			video.play();
+			// console.log(stream.getVideoTracks()[0])
 		}, errBack);
 	}
 	else if(navigator.mozGetUserMedia) { // Firefox-prefixed
@@ -579,10 +611,44 @@ window.addEventListener("DOMContentLoaded", function() {
 			video.play();
 		}, errBack);
 	}
-	}, false);
+};
+
+function stopCamera() {
+	video = document.getElementById("video"),
+	videoObj = { "video": true },
+	errBack = function	(error) {
+		console.log("Video capture error: ", error.code); 
+	};
+	
+	// Put video listeners into place
+	if(navigator.getUserMedia) { // Standard
+		navigator.getUserMedia(videoObj, function(stream) {
+			video.pause();
+			video.src =  null;
+			stream.getVideoTracks()[0].stop();
+		}, errBack);
+	} else if(navigator.webkitGetUserMedia) { // WebKit-prefixed
+		navigator.webkitGetUserMedia(videoObj, function(stream){
+			video.pause();
+			video.src = "";
+			stream.getVideoTracks()[0].stop();
+			// console.log(stream.getVideoTracks()[0])
+		}, errBack);
+	}
+	else if(navigator.mozGetUserMedia) { // Firefox-prefixed
+		navigator.mozGetUserMedia(videoObj, function(stream){
+			video.pause();
+			video.src =  null;
+			stream.getVideoTracks()[0].stop();
+		}, errBack);
+	}
+
+}
 
 
 function videoEffect() {
+
+	getCamera();
 
 	// declare our variables
 	var seriously, // the main object that holds the entire composition
